@@ -1,6 +1,6 @@
 # dparikh79.github.io
 
-Personal portfolio for **Dhruvil Parikh** — robotics engineer working at the intersection of physical autonomy, computer vision, and applied AI.
+Personal portfolio for **Dhruvil Parikh**, robotics engineer working at the intersection of physical autonomy, computer vision, and applied AI.
 
 **Live →** [dparikh79.github.io](https://dparikh79.github.io)
 
