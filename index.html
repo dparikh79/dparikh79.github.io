@@ -654,7 +654,7 @@
 
         <div class="instruments-stack" aria-hidden="true">
 
-          <!-- ===== fig. R / VLA arm tracing ∞ (Robotics + AI + Software in one diagram) ===== -->
+          <!-- ===== fig. R / VLA pick-and-place (prompt → policy → multi-step action) ===== -->
           <div class="instrument" data-fig="R">
             <svg viewBox="0 0 280 110" xmlns="http://www.w3.org/2000/svg">
               <defs>
@@ -664,48 +664,61 @@
               </defs>
 
               <!-- workspace floor -->
-              <line x1="14" y1="102" x2="266" y2="102" stroke="currentColor" stroke-width="0.4" opacity="0.3"/>
+              <line x1="14" y1="104" x2="266" y2="104" stroke="currentColor" stroke-width="0.4" opacity="0.3"/>
 
-              <!-- VLA policy callout: small box top-left feeding into the arm -->
+              <!-- VLA chain: prompt → policy → arm -->
               <g opacity="0">
-                <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="0.5s" fill="freeze"/>
-                <rect x="10" y="6" width="60" height="18" rx="2" fill="var(--paper)" stroke="currentColor" stroke-width="0.55" opacity="0.65"/>
-                <text x="40" y="14" font-family="JetBrains Mono, monospace" font-size="5.5" fill="currentColor" opacity="0.85" text-anchor="middle">VLA POLICY</text>
-                <text x="40" y="21" font-family="Newsreader, serif" font-style="italic" font-size="6.5" fill="#A33A1C" opacity="0.95" text-anchor="middle">&#x03C0;(s, t) &rarr; q&#x0307;</text>
-                <!-- dotted arrow from box down to arm base -->
-                <path d="M 40 25 Q 42 55, 50 90" stroke="currentColor" stroke-width="0.5" fill="none" opacity="0.4" stroke-dasharray="1.5 1.5" marker-end="url(#r-arr)"/>
+                <animate attributeName="opacity" from="0" to="1" dur="0.6s" begin="0.4s" fill="freeze"/>
+
+                <!-- natural-language prompt (italic serif) -->
+                <text x="14" y="14" font-family="Newsreader, serif" font-style="italic" font-size="10" fill="currentColor" opacity="0.85">
+                  &ldquo;move the block&rdquo;
+                </text>
+
+                <!-- VLA model box -->
+                <rect x="14" y="20" width="58" height="13" rx="2" fill="var(--paper)" stroke="currentColor" stroke-width="0.55" opacity="0.7"/>
+                <text x="43" y="29" font-family="JetBrains Mono, monospace" font-size="5.8" fill="currentColor" opacity="0.85" text-anchor="middle">VLA &rarr; &pi;(s, g)</text>
               </g>
 
-              <!-- end-effector trail: SOLID oxide-red figure-8 (lemniscate of Gerono) -->
-              <path id="arm-trail" d="" stroke="#A33A1C" stroke-width="1" fill="none" opacity="0.65"/>
+              <!-- station A marker (left) -->
+              <g stroke="currentColor" stroke-width="0.5" fill="none" opacity="0.45">
+                <rect x="68" y="80" width="14" height="14" stroke-dasharray="2 1.5"/>
+              </g>
+              <text x="75" y="100" font-family="JetBrains Mono, monospace" font-size="5.5" fill="currentColor" opacity="0.55" text-anchor="middle">A</text>
 
-              <!-- arm pedestal -->
-              <rect x="40" y="94" width="18" height="10" fill="none" stroke="currentColor" stroke-width="0.65" opacity="0.55"/>
+              <!-- station B marker (right) -->
+              <g stroke="currentColor" stroke-width="0.5" fill="none" opacity="0.45">
+                <rect x="198" y="80" width="14" height="14" stroke-dasharray="2 1.5"/>
+              </g>
+              <text x="205" y="100" font-family="JetBrains Mono, monospace" font-size="5.5" fill="currentColor" opacity="0.55" text-anchor="middle">B</text>
 
-              <!-- arm: 2-link planar, JS-driven IK -->
-              <g transform="translate(49, 94)">
-                <!-- base joint -->
+              <!-- arm pedestal (center) -->
+              <rect x="131" y="98" width="18" height="8" fill="none" stroke="currentColor" stroke-width="0.65" opacity="0.55"/>
+
+              <!-- the block being moved (JS updates x/y) -->
+              <rect id="vla-block" x="69" y="81" width="12" height="12" rx="1" fill="#A33A1C" opacity="0.92"/>
+
+              <!-- grasp/release pulse ring (JS controls cx, cy, opacity, r) -->
+              <circle id="grasp-pulse" cx="75" cy="87" r="0" fill="none" stroke="#A33A1C" stroke-width="0.8" opacity="0"/>
+
+              <!-- arm: center-mounted 2-link, JS-driven IK + pick-place state machine -->
+              <g transform="translate(140, 98)">
                 <circle cx="0" cy="0" r="3.5" fill="currentColor" opacity="0.65"/>
                 <circle cx="0" cy="0" r="1.3" fill="var(--paper)"/>
 
-                <g id="arm-link1" transform="rotate(-25)">
-                  <!-- link 1 (upper arm) - bigger -->
+                <g id="arm-link1" transform="rotate(-90)">
                   <rect x="0" y="-2.5" width="55" height="5" rx="1.5" fill="var(--paper)" stroke="currentColor" stroke-width="1" opacity="0.8"/>
-                  <!-- decorative bolts -->
                   <circle cx="5" cy="0" r="0.8" fill="currentColor" opacity="0.4"/>
                   <circle cx="50" cy="0" r="0.8" fill="currentColor" opacity="0.4"/>
 
-                  <g id="arm-link2" transform="translate(55, 0) rotate(-40)">
-                    <!-- elbow joint -->
+                  <g id="arm-link2" transform="translate(55, 0) rotate(0)">
                     <circle cx="0" cy="0" r="2.8" fill="currentColor" opacity="0.6"/>
                     <circle cx="0" cy="0" r="1" fill="var(--paper)"/>
 
-                    <!-- link 2 (forearm) - bigger -->
                     <rect x="0" y="-2" width="38" height="4" rx="1.2" fill="var(--paper)" stroke="currentColor" stroke-width="0.95" opacity="0.8"/>
                     <circle cx="33" cy="0" r="0.8" fill="currentColor" opacity="0.4"/>
 
-                    <!-- end-effector (gripper) -->
-                    <g transform="translate(38, 0)">
+                    <g id="arm-gripper" transform="translate(38, 0)">
                       <line x1="0" y1="0" x2="7" y2="-3.5" stroke="#A33A1C" stroke-width="0.95" opacity="0.85" stroke-linecap="round"/>
                       <line x1="0" y1="0" x2="7" y2="3.5" stroke="#A33A1C" stroke-width="0.95" opacity="0.85" stroke-linecap="round"/>
                       <circle cx="0" cy="0" r="3.2" fill="#A33A1C"/>
@@ -713,8 +726,11 @@
                   </g>
                 </g>
               </g>
+
+              <!-- hidden trail placeholder (kept for JS guard, unused now) -->
+              <path id="arm-trail" d="" stroke="none" fill="none"/>
             </svg>
-            <span class="instrument-cap">fig. R / vla &rarr; arm &middot; trace(&infin;)</span>
+            <span class="instrument-cap">fig. R / vla &rarr; pick + place</span>
           </div>
 
           <!-- ===== fig. S / agentic loop (Metrux + AI + cloud architecture) ===== -->
@@ -1168,34 +1184,24 @@
       document.querySelectorAll('.instrument circle').forEach(c => { if (c.getAttribute('opacity') === '0') c.setAttribute('opacity', '1'); });
     }
 
-    // fig. R: 2-link robot arm with real IK tracing a figure-8 (lemniscate of Gerono)
+    // fig. R: 2-link arm executing a VLA pick-and-place between stations A and B
     (function() {
-      const baseX = 49, baseY = 94, L1 = 55, L2 = 38;
+      const baseX = 140, baseY = 98, L1 = 55, L2 = 38;
       const link1 = document.getElementById('arm-link1');
       const link2 = document.getElementById('arm-link2');
-      const trail = document.getElementById('arm-trail');
-      if (!link1 || !link2 || !trail) return;
+      const block = document.getElementById('vla-block');
+      const pulse = document.getElementById('grasp-pulse');
+      if (!link1 || !link2 || !block) return;
 
-      // Lemniscate of Gerono - traces a horizontal figure-8 (∞) symbol
-      const trajectory = (t) => {
-        const a = t * Math.PI * 2;
-        return [95 + 22 * Math.cos(2 * a), 55 + 12 * Math.sin(a)];
+      const HOME = [140, 50];
+      const A = [75, 87];
+      const B = [205, 87];
+      const RAD2DEG = 180 / Math.PI;
+
+      const setBlock = (x, y) => {
+        block.setAttribute('x', (x - 6).toFixed(1));
+        block.setAttribute('y', (y - 6).toFixed(1));
       };
-
-      // Pre-compute trail path so visitors see what the arm is drawing
-      let pathD = '';
-      for (let i = 0; i <= 80; i++) {
-        const [x, y] = trajectory(i / 80);
-        pathD += (i === 0 ? 'M ' : 'L ') + x.toFixed(1) + ' ' + y.toFixed(1) + ' ';
-      }
-      trail.setAttribute('d', pathD);
-
-      if (reduceMotion) {
-        // Park the arm in a calm static pose
-        link1.setAttribute('transform', 'rotate(-30)');
-        link2.setAttribute('transform', `translate(${L1}, 0) rotate(-35)`);
-        return;
-      }
 
       const ik = (tx, ty) => {
         const dx = tx - baseX, dy = ty - baseY;
@@ -1210,18 +1216,78 @@
         return [base - alpha1, Math.PI - alpha2]; // elbow up
       };
 
-      const DURATION = 9000;
-      let start = null;
-      const RAD2DEG = 180 / Math.PI;
-      const tick = (now) => {
-        if (!start) start = now;
-        const t = ((now - start) % DURATION) / DURATION;
-        const [tx, ty] = trajectory(t);
+      const setArm = (tx, ty) => {
         const r = ik(tx, ty);
-        if (r) {
-          link1.setAttribute('transform', `rotate(${(r[0] * RAD2DEG).toFixed(2)})`);
-          link2.setAttribute('transform', `translate(${L1}, 0) rotate(${(r[1] * RAD2DEG).toFixed(2)})`);
+        if (!r) return;
+        link1.setAttribute('transform', `rotate(${(r[0] * RAD2DEG).toFixed(2)})`);
+        link2.setAttribute('transform', `translate(${L1}, 0) rotate(${(r[1] * RAD2DEG).toFixed(2)})`);
+      };
+
+      if (reduceMotion) {
+        setArm(HOME[0], HOME[1]);
+        setBlock(A[0], A[1]);
+        return;
+      }
+
+      const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+      const ease = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+      const CYCLE = 7000;
+      let cycleStart = null;
+      let cycleIdx = 0;
+
+      const tick = (now) => {
+        if (!cycleStart) cycleStart = now;
+        let elapsed = now - cycleStart;
+        if (elapsed >= CYCLE) {
+          cycleStart += CYCLE;
+          cycleIdx++;
+          elapsed = now - cycleStart;
         }
+
+        // alternate direction each cycle so the block swaps stations
+        const [from, to] = cycleIdx % 2 === 0 ? [A, B] : [B, A];
+
+        let armTarget, blockPos, pulseAt = null, pulseT = 0;
+        if (elapsed < 800) {
+          armTarget = HOME;
+          blockPos = from;
+        } else if (elapsed < 2200) {
+          const t = ease((elapsed - 800) / 1400);
+          armTarget = lerp(HOME, from, t);
+          blockPos = from;
+        } else if (elapsed < 2500) {
+          armTarget = from;
+          blockPos = from;
+          pulseAt = from;
+          pulseT = (elapsed - 2200) / 300;
+        } else if (elapsed < 4900) {
+          const t = ease((elapsed - 2500) / 2400);
+          armTarget = lerp(from, to, t);
+          blockPos = armTarget;
+        } else if (elapsed < 5200) {
+          armTarget = to;
+          blockPos = to;
+          pulseAt = to;
+          pulseT = (elapsed - 4900) / 300;
+        } else {
+          const t = ease((elapsed - 5200) / 1800);
+          armTarget = lerp(to, HOME, t);
+          blockPos = to;
+        }
+
+        setArm(armTarget[0], armTarget[1]);
+        setBlock(blockPos[0], blockPos[1]);
+
+        if (pulseAt && pulse) {
+          pulse.setAttribute('cx', pulseAt[0].toFixed(1));
+          pulse.setAttribute('cy', pulseAt[1].toFixed(1));
+          pulse.setAttribute('r', (4 + pulseT * 8).toFixed(1));
+          pulse.setAttribute('opacity', (1 - pulseT).toFixed(2));
+        } else if (pulse) {
+          pulse.setAttribute('opacity', '0');
+        }
+
         requestAnimationFrame(tick);
       };
       requestAnimationFrame(tick);
