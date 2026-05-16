@@ -181,6 +181,17 @@
       padding-top: 6rem;
       padding-bottom: 3rem;
     }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.58fr);
+      gap: clamp(2rem, 5vw, 5rem);
+      align-items: center;
+      align-self: center;
+      width: 100%;
+    }
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 2rem; }
+    }
     .hero .meta {
       font-family: var(--font-mono);
       font-size: 0.7rem;
@@ -250,25 +261,20 @@
       50% { transform: scaleX(1); }
     }
 
-    /* ========== HERO FLOOR (3 field-notebook diagrams + scroll cue) ========== */
-    .hero-floor {
+    /* ========== INSTRUMENTS (3 field-notebook diagrams, stacked right of hero) ========== */
+    .instruments-stack {
       display: flex;
       flex-direction: column;
-      gap: 1.75rem;
-    }
-    .instruments-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: clamp(1.5rem, 3vw, 3rem);
-      align-items: end;
-      padding-top: 0.5rem;
-      border-top: 1px solid var(--hairline);
+      gap: clamp(1.25rem, 2.5vh, 2rem);
+      align-items: stretch;
+      padding-left: clamp(1rem, 2vw, 2.5rem);
+      border-left: 1px solid var(--hairline);
     }
     .instrument {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 0.5rem;
+      gap: 0.45rem;
       opacity: 0;
       animation: rise 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
     }
@@ -278,10 +284,10 @@
     .instrument svg {
       display: block;
       width: 100%;
-      max-width: 260px;
+      max-width: 360px;
       height: auto;
       color: var(--ink);
-      opacity: 0.6;
+      opacity: 0.62;
     }
     .instrument-cap {
       font-family: var(--font-mono);
@@ -290,8 +296,13 @@
       text-transform: uppercase;
       color: var(--ink-muted);
     }
-    @media (max-width: 720px) {
-      .instruments-row { grid-template-columns: 1fr; gap: 1.75rem; }
+    @media (max-width: 900px) {
+      .instruments-stack {
+        border-left: none;
+        padding-left: 0;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--hairline);
+      }
     }
 
     /* ========== ABOUT ========== */
@@ -632,139 +643,172 @@
         <span>Dhruvil Parikh &nbsp;/&nbsp; Portfolio &nbsp;/&nbsp; 2026</span>
         <span>Boston, MA &middot; Robotics SWE @ Globus Medical &middot; Building Metrux AI</span>
       </div>
-      <div class="hero-content">
-        <h1>Dhruvil<br>Parikh</h1>
-        <div class="pillars">
-          <span>Robotics</span>
-          <span>Software</span>
-          <span>AI</span>
+      <div class="hero-grid">
+        <div class="hero-content">
+          <h1>Dhruvil<br>Parikh</h1>
+          <div class="pillars">
+            <span>Robotics</span>
+            <span>Software</span>
+            <span>AI</span>
+          </div>
+          <p class="tagline">
+            I build systems that perceive, decide, and act. From autonomous drones with sensor fusion pipelines, to the perception models behind what they see, to the LLM agents that reason about what they&rsquo;ve learned.
+          </p>
         </div>
-        <p class="tagline">
-          I build systems that perceive, decide, and act. From autonomous drones with sensor fusion pipelines, to the perception models behind what they see, to the LLM agents that reason about what they&rsquo;ve learned.
-        </p>
-      </div>
-      <div class="hero-floor">
-        <div class="instruments-row" aria-hidden="true">
 
-          <!-- ===== fig. R / pose trace (Robotics) ===== -->
+        <div class="instruments-stack" aria-hidden="true">
+
+          <!-- ===== fig. R / SLAM pose graph + loop closure (Robotics) ===== -->
           <div class="instrument" data-fig="R">
-            <svg viewBox="0 0 240 70" xmlns="http://www.w3.org/2000/svg">
-              <line x1="8" y1="55" x2="232" y2="55" stroke="currentColor" stroke-width="0.4" opacity="0.35"/>
-              <g stroke="currentColor" stroke-width="0.5" opacity="0.5">
-                <line x1="8"   y1="55" x2="8"   y2="60"/>
-                <line x1="64"  y1="55" x2="64"  y2="58"/>
-                <line x1="120" y1="55" x2="120" y2="58"/>
-                <line x1="176" y1="55" x2="176" y2="58"/>
-                <line x1="232" y1="55" x2="232" y2="60"/>
-              </g>
-              <circle cx="8" cy="55" r="1.7" fill="currentColor" opacity="0.6"/>
-              <path id="rover-traj"
-                    d="M 8 55 L 38 55 L 50 32 L 92 36 L 104 56 L 142 52 Q 168 50, 168 30 Q 168 12, 196 18 L 224 38"
-                    stroke="currentColor" stroke-width="1" fill="none"
+            <svg viewBox="0 0 280 115" xmlns="http://www.w3.org/2000/svg">
+              <!-- faint coordinate baseline -->
+              <line x1="14" y1="95" x2="266" y2="95" stroke="currentColor" stroke-width="0.35" opacity="0.22"/>
+
+              <!-- odometry trajectory: rover drives out and curves back near start -->
+              <path id="pose-traj"
+                    d="M 20 75 L 50 60 L 88 48 L 130 42 L 170 46 L 205 58 L 226 78 L 215 95"
+                    stroke="currentColor" stroke-width="0.9" fill="none" opacity="0.55"
                     stroke-linecap="round" stroke-linejoin="round"
                     pathLength="1" stroke-dasharray="1" stroke-dashoffset="1">
-                <animate attributeName="stroke-dashoffset" from="1" to="0" dur="2.4s" begin="1.4s" fill="freeze"/>
+                <animate attributeName="stroke-dashoffset" from="1" to="0" dur="2.8s" begin="1.2s" fill="freeze"/>
               </path>
-              <circle r="2.6" fill="#A33A1C" opacity="0">
-                <animate attributeName="opacity" from="0" to="1" dur="0.4s" begin="3.8s" fill="freeze"/>
-                <animateMotion dur="9s" repeatCount="indefinite" begin="3.8s">
-                  <mpath href="#rover-traj"/>
+
+              <!-- pose nodes fade in along the trajectory -->
+              <g fill="currentColor">
+                <circle cx="20"  cy="75" r="2.2" opacity="0.85"/>
+                <circle cx="50"  cy="60" r="2.2" opacity="0"><animate attributeName="opacity" from="0" to="0.8" dur="0.3s" begin="1.5s" fill="freeze"/></circle>
+                <circle cx="88"  cy="48" r="2.2" opacity="0"><animate attributeName="opacity" from="0" to="0.8" dur="0.3s" begin="1.85s" fill="freeze"/></circle>
+                <circle cx="130" cy="42" r="2.2" opacity="0"><animate attributeName="opacity" from="0" to="0.8" dur="0.3s" begin="2.2s" fill="freeze"/></circle>
+                <circle cx="170" cy="46" r="2.2" opacity="0"><animate attributeName="opacity" from="0" to="0.8" dur="0.3s" begin="2.55s" fill="freeze"/></circle>
+                <circle cx="205" cy="58" r="2.2" opacity="0"><animate attributeName="opacity" from="0" to="0.8" dur="0.3s" begin="2.9s" fill="freeze"/></circle>
+                <circle cx="226" cy="78" r="2.2" opacity="0"><animate attributeName="opacity" from="0" to="0.8" dur="0.3s" begin="3.25s" fill="freeze"/></circle>
+                <circle cx="215" cy="95" r="2.2" opacity="0"><animate attributeName="opacity" from="0" to="0.8" dur="0.3s" begin="3.6s" fill="freeze"/></circle>
+              </g>
+
+              <!-- LOOP CLOSURE edge: dashed oxide-red arc from end pose back to start -->
+              <path d="M 215 95 Q 110 115, 20 75"
+                    stroke="#A33A1C" stroke-width="0.9" fill="none"
+                    stroke-dasharray="3 2" opacity="0">
+                <animate attributeName="opacity" from="0" to="0.85" dur="0.5s" begin="4.0s" fill="freeze"/>
+              </path>
+
+              <!-- "I recognize this place" pulse at origin pose when loop closes -->
+              <circle cx="20" cy="75" r="3" fill="none" stroke="#A33A1C" stroke-width="0.6" opacity="0">
+                <animate attributeName="opacity" values="0;1;0" dur="1s" begin="4.2s" repeatCount="2"/>
+                <animate attributeName="r" values="3;9;3" dur="1s" begin="4.2s" repeatCount="2"/>
+              </circle>
+
+              <!-- rover dot loops the corrected trajectory -->
+              <circle r="2.7" fill="#A33A1C" opacity="0">
+                <animate attributeName="opacity" from="0" to="1" dur="0.4s" begin="5.0s" fill="freeze"/>
+                <animateMotion dur="8s" begin="5.0s" repeatCount="indefinite">
+                  <mpath href="#pose-traj"/>
                 </animateMotion>
               </circle>
             </svg>
-            <span class="instrument-cap">fig. R / pose trace</span>
+            <span class="instrument-cap">fig. R / SLAM loop closure</span>
           </div>
 
-          <!-- ===== fig. S / commit graph (Software) ===== -->
+          <!-- ===== fig. S / evidence to score (Software, Metrux-flavored) ===== -->
           <div class="instrument" data-fig="S">
-            <svg viewBox="0 0 240 70" xmlns="http://www.w3.org/2000/svg">
-              <!-- main branch baseline -->
-              <line x1="8" y1="45" x2="232" y2="45" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
-
-              <!-- commits on main, fade in one after another -->
-              <g fill="currentColor" opacity="0.75">
-                <circle cx="24"  cy="45" r="2.4" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="1.0s" fill="freeze"/></circle>
-                <circle cx="56"  cy="45" r="2.4" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="1.3s" fill="freeze"/></circle>
-                <circle cx="88"  cy="45" r="2.4" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="1.6s" fill="freeze"/></circle>
-                <circle cx="168" cy="45" r="2.4" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="3.2s" fill="freeze"/></circle>
-                <circle cx="200" cy="45" r="2.4" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="3.5s" fill="freeze"/></circle>
-              </g>
-
-              <!-- feature branch: splits at x=88, merges at x=168 -->
-              <path d="M 88 45 Q 108 45, 108 22 L 152 22 Q 168 22, 168 45"
-                    stroke="currentColor" stroke-width="0.7" fill="none" opacity="0.5"
-                    pathLength="1" stroke-dasharray="1" stroke-dashoffset="1">
-                <animate attributeName="stroke-dashoffset" from="1" to="0" dur="1.4s" begin="2.0s" fill="freeze"/>
-              </path>
-              <g fill="currentColor" opacity="0.75">
-                <circle cx="118" cy="22" r="2.4" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="2.5s" fill="freeze"/></circle>
-                <circle cx="148" cy="22" r="2.4" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="2.8s" fill="freeze"/></circle>
-              </g>
-
-              <!-- HEAD: oxide-red, pulsing -->
-              <circle cx="220" cy="45" r="3" fill="#A33A1C" opacity="0">
-                <animate attributeName="opacity" from="0" to="1" dur="0.4s" begin="4.0s" fill="freeze"/>
-                <animate attributeName="r" values="3;4;3" dur="2.6s" begin="4.4s" repeatCount="indefinite"/>
-              </circle>
-
-              <!-- HEAD label tick -->
-              <line x1="220" y1="50" x2="220" y2="58" stroke="#A33A1C" stroke-width="0.5" opacity="0">
-                <animate attributeName="opacity" from="0" to="0.7" dur="0.3s" begin="4.2s" fill="freeze"/>
-              </line>
-            </svg>
-            <span class="instrument-cap">fig. S / commit graph</span>
-          </div>
-
-          <!-- ===== fig. A / activation (AI) ===== -->
-          <div class="instrument" data-fig="A">
-            <svg viewBox="0 0 240 70" xmlns="http://www.w3.org/2000/svg">
-              <!-- network edges (faint base) -->
-              <g stroke="currentColor" stroke-width="0.35" opacity="0.3" fill="none">
-                <!-- input → hidden -->
-                <line x1="23" y1="15" x2="117" y2="22"/>
-                <line x1="23" y1="15" x2="117" y2="48"/>
-                <line x1="23" y1="35" x2="117" y2="22"/>
-                <line x1="23" y1="35" x2="117" y2="48"/>
-                <line x1="23" y1="55" x2="117" y2="22"/>
-                <line x1="23" y1="55" x2="117" y2="48"/>
-                <!-- hidden → output -->
-                <line x1="123" y1="22" x2="217" y2="28"/>
-                <line x1="123" y1="22" x2="217" y2="48"/>
-                <line x1="123" y1="48" x2="217" y2="28"/>
-                <line x1="123" y1="48" x2="217" y2="48"/>
-              </g>
-
-              <!-- nodes (ring-style for elegance) -->
+            <svg viewBox="0 0 280 100" xmlns="http://www.w3.org/2000/svg">
+              <!-- 3 stage rings -->
               <g fill="var(--paper)" stroke="currentColor" stroke-width="0.9" opacity="0.75">
-                <circle cx="20" cy="15" r="3"/>
-                <circle cx="20" cy="35" r="3"/>
-                <circle cx="20" cy="55" r="3"/>
-                <circle cx="120" cy="22" r="3"/>
-                <circle cx="120" cy="48" r="3"/>
-                <circle cx="220" cy="28" r="3"/>
-                <circle cx="220" cy="48" r="3"/>
+                <circle cx="36"  cy="52" r="8"/>
+                <circle cx="110" cy="52" r="8"/>
+                <circle cx="184" cy="52" r="8"/>
               </g>
 
-              <!-- invisible motion paths for sparks -->
+              <!-- stage labels under each ring -->
+              <g font-family="JetBrains Mono, monospace" font-size="5.5" fill="currentColor" opacity="0.7" text-anchor="middle">
+                <text x="36"  y="78">EVENT</text>
+                <text x="110" y="78">EVIDENCE</text>
+                <text x="184" y="78">JUDGE</text>
+                <text x="252" y="78" fill="#A33A1C" opacity="0">SCORE<animate attributeName="opacity" from="0" to="0.85" dur="0.3s" begin="4.6s" fill="freeze"/></text>
+              </g>
+
+              <!-- connector arrows between stages and out to the score -->
+              <g stroke="currentColor" stroke-width="0.6" fill="none" opacity="0.45">
+                <line x1="44"  y1="52" x2="102" y2="52" marker-end="url(#s-arr)"/>
+                <line x1="118" y1="52" x2="176" y2="52" marker-end="url(#s-arr)"/>
+                <line x1="192" y1="52" x2="232" y2="52" marker-end="url(#s-arr)"/>
+              </g>
+
+              <!-- final SCORE: big italic serif in oxide-red, the visual payoff -->
+              <text x="252" y="60" font-family="Newsreader, serif" font-style="italic" font-size="24" fill="#A33A1C" font-weight="500" text-anchor="middle" opacity="0">
+                92
+                <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="4.2s" fill="freeze"/>
+              </text>
+
               <defs>
-                <path id="ai-p1" d="M 20 15 L 120 22 L 220 28"/>
-                <path id="ai-p2" d="M 20 55 L 120 48 L 220 48"/>
-                <path id="ai-p3" d="M 20 35 L 120 22 L 220 48"/>
+                <marker id="s-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="3" markerHeight="3" orient="auto">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" opacity="0.6"/>
+                </marker>
+                <path id="pipe-flow" d="M 36 52 L 184 52" fill="none" stroke="none"/>
               </defs>
 
-              <!-- three sparks staggered, each traveling a different path through the net -->
-              <circle r="2.4" fill="#A33A1C">
-                <animateMotion dur="2.4s" begin="2.4s" repeatCount="indefinite">
+              <!-- data dots flowing through the pipeline (staggered) -->
+              <circle r="2.2" fill="#A33A1C">
+                <animateMotion dur="3.5s" begin="2s" repeatCount="indefinite">
+                  <mpath href="#pipe-flow"/>
+                </animateMotion>
+              </circle>
+              <circle r="2.2" fill="#A33A1C">
+                <animateMotion dur="3.5s" begin="3.4s" repeatCount="indefinite">
+                  <mpath href="#pipe-flow"/>
+                </animateMotion>
+              </circle>
+            </svg>
+            <span class="instrument-cap">fig. S / evidence to score</span>
+          </div>
+
+          <!-- ===== fig. A / activation (AI, scaled up to match new viewBox) ===== -->
+          <div class="instrument" data-fig="A">
+            <svg viewBox="0 0 280 100" xmlns="http://www.w3.org/2000/svg">
+              <!-- faint base edges -->
+              <g stroke="currentColor" stroke-width="0.35" opacity="0.3" fill="none">
+                <line x1="28"  y1="22" x2="137" y2="32"/>
+                <line x1="28"  y1="22" x2="137" y2="68"/>
+                <line x1="28"  y1="50" x2="137" y2="32"/>
+                <line x1="28"  y1="50" x2="137" y2="68"/>
+                <line x1="28"  y1="78" x2="137" y2="32"/>
+                <line x1="28"  y1="78" x2="137" y2="68"/>
+                <line x1="143" y1="32" x2="252" y2="40"/>
+                <line x1="143" y1="32" x2="252" y2="68"/>
+                <line x1="143" y1="68" x2="252" y2="40"/>
+                <line x1="143" y1="68" x2="252" y2="68"/>
+              </g>
+
+              <!-- ring nodes -->
+              <g fill="var(--paper)" stroke="currentColor" stroke-width="0.9" opacity="0.75">
+                <circle cx="25"  cy="22" r="3.5"/>
+                <circle cx="25"  cy="50" r="3.5"/>
+                <circle cx="25"  cy="78" r="3.5"/>
+                <circle cx="140" cy="32" r="3.5"/>
+                <circle cx="140" cy="68" r="3.5"/>
+                <circle cx="255" cy="40" r="3.5"/>
+                <circle cx="255" cy="68" r="3.5"/>
+              </g>
+
+              <defs>
+                <path id="ai-p1" d="M 25 22 L 140 32 L 255 40"/>
+                <path id="ai-p2" d="M 25 78 L 140 68 L 255 68"/>
+                <path id="ai-p3" d="M 25 50 L 140 32 L 255 68"/>
+              </defs>
+
+              <!-- three activation sparks taking different paths through the net -->
+              <circle r="2.6" fill="#A33A1C">
+                <animateMotion dur="2.6s" begin="2.4s" repeatCount="indefinite">
                   <mpath href="#ai-p1"/>
                 </animateMotion>
               </circle>
-              <circle r="2.4" fill="#A33A1C">
-                <animateMotion dur="2.4s" begin="3.6s" repeatCount="indefinite">
+              <circle r="2.6" fill="#A33A1C">
+                <animateMotion dur="2.6s" begin="3.7s" repeatCount="indefinite">
                   <mpath href="#ai-p2"/>
                 </animateMotion>
               </circle>
-              <circle r="2.4" fill="#A33A1C">
-                <animateMotion dur="2.4s" begin="4.8s" repeatCount="indefinite">
+              <circle r="2.6" fill="#A33A1C">
+                <animateMotion dur="2.6s" begin="5.0s" repeatCount="indefinite">
                   <mpath href="#ai-p3"/>
                 </animateMotion>
               </circle>
@@ -773,9 +817,10 @@
           </div>
 
         </div>
-        <div class="scroll-cue">
-          <span>Scroll</span>
-        </div>
+      </div>
+
+      <div class="scroll-cue">
+        <span>Scroll</span>
       </div>
     </section>
 
