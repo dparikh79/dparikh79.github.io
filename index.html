@@ -1250,7 +1250,7 @@
       const tick = (now) => {
         if (!cycleStart) cycleStart = now;
         let elapsed = now - cycleStart;
-        if (elapsed >= CYCLE) {
+        while (elapsed >= CYCLE) {
           cycleStart += CYCLE;
           cycleIdx++;
           elapsed = now - cycleStart;
@@ -1302,6 +1302,12 @@
         requestAnimationFrame(tick);
       };
       requestAnimationFrame(tick);
+
+      // Re-anchor when the tab returns from background so we don't burn off
+      // a backlog of cycles in fast-forward.
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) cycleStart = null;
+      });
     })();
 
     const observer = new IntersectionObserver((entries) => {
