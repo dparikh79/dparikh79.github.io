@@ -680,45 +680,46 @@
                 <text x="43" y="29" font-family="JetBrains Mono, monospace" font-size="5.8" fill="currentColor" opacity="0.85" text-anchor="middle">VLA &rarr; &pi;(s, g)</text>
               </g>
 
-              <!-- station A marker (left) -->
+              <!-- station A marker -->
               <g stroke="currentColor" stroke-width="0.5" fill="none" opacity="0.45">
-                <rect x="68" y="80" width="14" height="14" stroke-dasharray="2 1.5"/>
+                <rect x="99" y="74" width="12" height="12" stroke-dasharray="2 1.5"/>
               </g>
-              <text x="75" y="100" font-family="JetBrains Mono, monospace" font-size="5.5" fill="currentColor" opacity="0.55" text-anchor="middle">A</text>
+              <text x="105" y="100" font-family="JetBrains Mono, monospace" font-size="5.5" fill="currentColor" opacity="0.55" text-anchor="middle">A</text>
 
-              <!-- station B marker (right) -->
+              <!-- station B marker -->
               <g stroke="currentColor" stroke-width="0.5" fill="none" opacity="0.45">
-                <rect x="198" y="80" width="14" height="14" stroke-dasharray="2 1.5"/>
+                <rect x="139" y="69" width="12" height="12" stroke-dasharray="2 1.5"/>
               </g>
-              <text x="205" y="100" font-family="JetBrains Mono, monospace" font-size="5.5" fill="currentColor" opacity="0.55" text-anchor="middle">B</text>
+              <text x="145" y="100" font-family="JetBrains Mono, monospace" font-size="5.5" fill="currentColor" opacity="0.55" text-anchor="middle">B</text>
 
-              <!-- arm pedestal (center) -->
-              <rect x="131" y="98" width="18" height="8" fill="none" stroke="currentColor" stroke-width="0.65" opacity="0.55"/>
+              <!-- arm pedestal -->
+              <rect x="38" y="95" width="16" height="9" fill="none" stroke="currentColor" stroke-width="0.65" opacity="0.55"/>
 
               <!-- the block being moved (JS updates x/y) -->
-              <rect id="vla-block" x="69" y="81" width="12" height="12" rx="1" fill="#A33A1C" opacity="0.92"/>
+              <rect id="vla-block" x="99" y="74" width="12" height="12" rx="1" fill="#A33A1C" opacity="0.92"/>
 
               <!-- grasp/release pulse ring (JS controls cx, cy, opacity, r) -->
-              <circle id="grasp-pulse" cx="75" cy="87" r="0" fill="none" stroke="#A33A1C" stroke-width="0.8" opacity="0"/>
+              <circle id="grasp-pulse" cx="105" cy="80" r="0" fill="none" stroke="#A33A1C" stroke-width="0.8" opacity="0"/>
 
-              <!-- arm: center-mounted 2-link, JS-driven IK + pick-place state machine -->
-              <g transform="translate(140, 98)">
+              <!-- arm: off-center to the LEFT so both stations sit on one side -->
+              <!-- (avoids IK singularity at midpoint + keeps elbow on one consistent side) -->
+              <g transform="translate(46, 95)">
                 <circle cx="0" cy="0" r="3.5" fill="currentColor" opacity="0.65"/>
                 <circle cx="0" cy="0" r="1.3" fill="var(--paper)"/>
 
                 <g id="arm-link1" transform="rotate(-90)">
-                  <rect x="0" y="-2.5" width="55" height="5" rx="1.5" fill="var(--paper)" stroke="currentColor" stroke-width="1" opacity="0.8"/>
+                  <rect x="0" y="-2.5" width="60" height="5" rx="1.5" fill="var(--paper)" stroke="currentColor" stroke-width="1" opacity="0.8"/>
                   <circle cx="5" cy="0" r="0.8" fill="currentColor" opacity="0.4"/>
-                  <circle cx="50" cy="0" r="0.8" fill="currentColor" opacity="0.4"/>
+                  <circle cx="55" cy="0" r="0.8" fill="currentColor" opacity="0.4"/>
 
-                  <g id="arm-link2" transform="translate(55, 0) rotate(0)">
+                  <g id="arm-link2" transform="translate(60, 0) rotate(0)">
                     <circle cx="0" cy="0" r="2.8" fill="currentColor" opacity="0.6"/>
                     <circle cx="0" cy="0" r="1" fill="var(--paper)"/>
 
-                    <rect x="0" y="-2" width="38" height="4" rx="1.2" fill="var(--paper)" stroke="currentColor" stroke-width="0.95" opacity="0.8"/>
-                    <circle cx="33" cy="0" r="0.8" fill="currentColor" opacity="0.4"/>
+                    <rect x="0" y="-2" width="45" height="4" rx="1.2" fill="var(--paper)" stroke="currentColor" stroke-width="0.95" opacity="0.8"/>
+                    <circle cx="40" cy="0" r="0.8" fill="currentColor" opacity="0.4"/>
 
-                    <g id="arm-gripper" transform="translate(38, 0)">
+                    <g id="arm-gripper" transform="translate(45, 0)">
                       <line x1="0" y1="0" x2="7" y2="-3.5" stroke="#A33A1C" stroke-width="0.95" opacity="0.85" stroke-linecap="round"/>
                       <line x1="0" y1="0" x2="7" y2="3.5" stroke="#A33A1C" stroke-width="0.95" opacity="0.85" stroke-linecap="round"/>
                       <circle cx="0" cy="0" r="3.2" fill="#A33A1C"/>
@@ -1185,17 +1186,20 @@
     }
 
     // fig. R: 2-link arm executing a VLA pick-and-place between stations A and B
+    // Geometry: arm off-center LEFT, stations BOTH to the right.
+    // Keeps the arm in a single elbow configuration throughout the cycle,
+    // and never asks IK to reach a point too close to the base.
     (function() {
-      const baseX = 140, baseY = 98, L1 = 55, L2 = 38;
+      const baseX = 46, baseY = 95, L1 = 60, L2 = 45;
       const link1 = document.getElementById('arm-link1');
       const link2 = document.getElementById('arm-link2');
       const block = document.getElementById('vla-block');
       const pulse = document.getElementById('grasp-pulse');
       if (!link1 || !link2 || !block) return;
 
-      const HOME = [140, 50];
-      const A = [75, 87];
-      const B = [205, 87];
+      const HOME = [80, 40];
+      const A = [105, 80];
+      const B = [145, 75];
       const RAD2DEG = 180 / Math.PI;
 
       const setBlock = (x, y) => {
@@ -1231,6 +1235,13 @@
 
       const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
       const ease = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      // quadratic bezier with control point above the midpoint, gives the arm a lift-and-place arc
+      const arc = (from, to, t, lift = 14) => {
+        const u = 1 - t;
+        const cx = (from[0] + to[0]) / 2;
+        const cy = Math.min(from[1], to[1]) - lift;
+        return [u*u*from[0] + 2*u*t*cx + t*t*to[0], u*u*from[1] + 2*u*t*cy + t*t*to[1]];
+      };
 
       const CYCLE = 7000;
       let cycleStart = null;
@@ -1263,7 +1274,7 @@
           pulseT = (elapsed - 2200) / 300;
         } else if (elapsed < 4900) {
           const t = ease((elapsed - 2500) / 2400);
-          armTarget = lerp(from, to, t);
+          armTarget = arc(from, to, t, 14);
           blockPos = armTarget;
         } else if (elapsed < 5200) {
           armTarget = to;
