@@ -250,6 +250,41 @@
       50% { transform: scaleX(1); }
     }
 
+    /* ========== HERO FLOOR (scroll cue + instrument diagram) ========== */
+    .hero-floor {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1.5rem 3rem;
+    }
+    .instrument {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: rise 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+      animation-delay: 1.3s;
+    }
+    .instrument svg {
+      display: block;
+      width: clamp(170px, 22vw, 240px);
+      height: auto;
+      color: var(--ink);
+      opacity: 0.55;
+    }
+    .instrument-cap {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+    @media (max-width: 540px) {
+      .instrument { align-items: flex-start; }
+    }
+
     /* ========== ABOUT ========== */
     .about {
       display: grid;
@@ -599,8 +634,42 @@
           I build systems that perceive, decide, and act. From autonomous drones with sensor fusion pipelines, to the perception models behind what they see, to the LLM agents that reason about what they&rsquo;ve learned.
         </p>
       </div>
-      <div class="scroll-cue">
-        <span>Scroll</span>
+      <div class="hero-floor">
+        <div class="scroll-cue">
+          <span>Scroll</span>
+        </div>
+        <div class="instrument" aria-hidden="true">
+          <svg viewBox="0 0 240 70" xmlns="http://www.w3.org/2000/svg">
+            <line x1="8" y1="55" x2="232" y2="55" stroke="currentColor" stroke-width="0.4" opacity="0.35"/>
+            <g stroke="currentColor" stroke-width="0.5" opacity="0.5">
+              <line x1="8"   y1="55" x2="8"   y2="60"/>
+              <line x1="64"  y1="55" x2="64"  y2="58"/>
+              <line x1="120" y1="55" x2="120" y2="58"/>
+              <line x1="176" y1="55" x2="176" y2="58"/>
+              <line x1="232" y1="55" x2="232" y2="60"/>
+            </g>
+            <circle cx="8" cy="55" r="1.7" fill="currentColor" opacity="0.6"/>
+            <path id="rover-traj"
+                  d="M 8 55 L 38 55 L 50 32 L 92 36 L 104 56 L 142 52 Q 168 50, 168 30 Q 168 12, 196 18 L 224 38"
+                  stroke="currentColor"
+                  stroke-width="1"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  pathLength="1"
+                  stroke-dasharray="1"
+                  stroke-dashoffset="1">
+              <animate attributeName="stroke-dashoffset" from="1" to="0" dur="2.4s" begin="1.4s" fill="freeze"/>
+            </path>
+            <circle r="2.6" fill="#A33A1C" opacity="0">
+              <animate attributeName="opacity" from="0" to="1" dur="0.4s" begin="3.8s" fill="freeze"/>
+              <animateMotion dur="9s" repeatCount="indefinite" begin="3.8s">
+                <mpath href="#rover-traj"/>
+              </animateMotion>
+            </circle>
+          </svg>
+          <span class="instrument-cap">fig. R / pose trace</span>
+        </div>
       </div>
     </section>
 
@@ -919,6 +988,12 @@
 
   <script>
     document.body.classList.add('js');
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('.instrument animate, .instrument animateMotion').forEach(el => el.remove());
+      const path = document.getElementById('rover-traj');
+      if (path) path.setAttribute('stroke-dashoffset', '0');
+      document.querySelectorAll('.instrument circle').forEach(c => c.setAttribute('opacity', '1'));
+    }
     const observer = new IntersectionObserver((entries) => {
       for (const e of entries) {
         if (e.isIntersecting) {
